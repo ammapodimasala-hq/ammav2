@@ -699,15 +699,14 @@ function renderShiprocket() {
   `).join('');
 }
 
-function createShipment(id) {
-  const o = getOrders().find(x=>x.id===id);
-  if(!o) return;
-  // Build Shiprocket V2 payload (ready to send to backend)
+async function createShipment(id) {
+  const o = getOrders().find(x => x.id === id);
+  if (!o) return;
+
   const payload = {
     order_id: o.id,
     order_date: o.timestamp,
     pickup_location: "Primary",
-    channel_id: getSRConfig().channel||"",
     billing_customer_name: o.customer.name.split(' ')[0],
     billing_last_name: o.customer.name.split(' ').slice(1).join(' '),
     billing_address: o.customer.address,
@@ -718,11 +717,39 @@ function createShipment(id) {
     billing_email: o.customer.email,
     billing_phone: o.customer.phone,
     shipping_is_billing: true,
-    order_items: o.items.map(i=>({name:i.name, sku:i.id, units:i.qty, selling_price:i.price})),
-    payment_method: o.payment==='cod'?'COD':'Prepaid',
+    order_items: o.items.map(i => ({
+      name: i.name,
+      sku: i.id,
+      units: i.qty,
+      selling_price: i.price
+    })),
+    payment_method: o.payment === 'cod' ? 'COD' : 'Prepaid',
     sub_total: o.subtotal,
-    length: 15, breadth: 10, height: 5, weight: 0.2
+    length: 15,
+    breadth: 10,
+    height: 5,
+    weight: 0.2
   };
+
+  try {
+    const res = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await res.json();
+    console.log(result);
+
+    showAdminToast("✅ Shipment created!");
+
+  } catch (err) {
+    console.error(err);
+    showAdminToast("❌ Error creating shipment");
+  }
+};
   console.log('Shiprocket payload ready:', payload);
   showAdminToast('Shipment payload prepared for ' + id + '. Connect backend to push.');
   updateOrderStatus(id, 'processing');
