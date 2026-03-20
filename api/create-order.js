@@ -53,7 +53,10 @@ export default async function handler(req, res) {
 
     const orderData = await orderRes.json();
 
-    return res.status(200).json({ success: true, orderData });
+    return res.status(200).json({
+      success: orderData.status === 1,
+      orderData
+    });
 
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
