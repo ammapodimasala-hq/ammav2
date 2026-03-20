@@ -434,7 +434,16 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
       body: JSON.stringify(orderData)
     });
 
-    const data = await res.json();
+    let data;
+
+    try {
+      data = await res.json();
+    } catch (err) {
+      const text = await res.text();
+      console.error("RAW RESPONSE:", text); // 👈 VERY IMPORTANT
+      alert("Server error — check console");
+      return;
+    }
 
     if (data.success) {
       alert("Order placed!");
