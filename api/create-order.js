@@ -13,8 +13,8 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: process.env.pratiknj2901@gmail,
-        password: process.env.Pratik@sr1
+        email: process.env.SR_EMAIL,
+        password: process.env.SR_PASSWORD
       })
     });
 
