@@ -4,7 +4,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const data = req.body;
+    const data = typeof req.body === "string"
+      ? JSON.parse(req.body)
+      : req.body;
 
     // Shiprocket auth
     const authRes = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
