@@ -409,7 +409,7 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
   };
 
   /* ── SHIPROCKET CHECKOUT ── */
-  window.handleCheckout = async function () {
+  async function handleCheckout() {
   try {
     const orderData = {
       name: "Test User",
@@ -420,7 +420,7 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
       items: [
         {
           name: "Amma's Gun Powder",
-          units: 2,
+          units: 1,
           selling_price: 99
         }
       ]
@@ -428,36 +428,33 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
 
     const res = await fetch('/api/create-order', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     });
 
-    let data;
+    const text = await res.text();   // 👈 ONLY THIS
+    console.log("RAW:", text);
 
+    let data;
     try {
-      data = await res.json();
-    } catch (err) {
-      const text = await res.text();
-      console.error("RAW RESPONSE:", text); // 👈 VERY IMPORTANT
-      alert("Server error — check console");
+      data = JSON.parse(text);
+    } catch {
+      alert("Server crashed — check console");
       return;
     }
 
     if (data.success) {
       alert("Order placed!");
     } else {
-      console.error("FULL ERROR:", data);
-      alert("Order failed");
       console.error(data);
+      alert("Order failed");
     }
 
   } catch (err) {
     console.error(err);
-    alert("Something went wrong");
+    alert("Something broke");
   }
-};;
+};
 
   function onPaySuccess(r){
     var p=JSON.parse(localStorage.getItem('ammaPendingOrder')||'{}');
