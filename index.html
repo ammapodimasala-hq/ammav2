@@ -409,28 +409,45 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
   };
 
   /* ── SHIPROCKET CHECKOUT ── */
-  window.shiprocketCheckout=function(){
-    if(!cart.length)return;
-    var qty=cartQty(),sub=subtotal(),disc=getDiscount(qty),del=getDelivery(qty,sub),total=sub-disc+del;
-    try{localStorage.setItem('ammaPendingOrder',JSON.stringify({id:'PENDING-'+Date.now(),items:JSON.parse(JSON.stringify(cart)),subtotal:sub,discount:disc,delivery:del,total:total,status:'pending_payment',date:new Date().toISOString()}));}catch(e){}
-    closeCart();
-    document.getElementById('srLoading').classList.add('show');
-    fetch('/api/get-checkout-token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_items:cart.map(function(item){return{name:item.name,sku:'AMMAGUNPOWDER150G',units:item.qty,selling_price:item.price,discount:0,tax:0,hsn:910990};}),sub_total:sub,discount:disc,shipping_charges:del,total:total})})
-    .then(function(r){return r.json();})
-    .then(function(data){
-      document.getElementById('srLoading').classList.remove('show');
-      if(data.token&&typeof ShiprocketCheckout!=='undefined'){
-        ShiprocketCheckout.init({token:data.token,is_cod:true,is_prepaid:true,callback:function(resp){
-          if(resp.payment_status==='paid'||resp.order_status==='placed')onPaySuccess(resp);
-          else showToast('Payment cancelled. Cart saved!');
-        }});
-      }else{showToast('Checkout unavailable. Try again.');}
-    })
-    .catch(function(){
-      document.getElementById('srLoading').classList.remove('show');
-      showToast('Connection error. Please try again.');
+  async function handleCheckout() {
+  try {
+    const orderData = {
+      name: "Test User",
+      address: "Test Address",
+      city: "Pune",
+      pincode: "411001",
+      phone: "9999999999",
+      items: [
+        {
+          name: "Amma's Gun Powder",
+          units: 2,
+          selling_price: 99
+        }
+      ]
+    };
+
+    const res = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderData)
     });
-  };
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Order placed!");
+    } else {
+      alert("Order failed");
+      console.error(data);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong");
+  }
+};
 
   function onPaySuccess(r){
     var p=JSON.parse(localStorage.getItem('ammaPendingOrder')||'{}');
