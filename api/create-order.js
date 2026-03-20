@@ -4,10 +4,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const data = typeof req.body === "string"
-      ? JSON.parse(req.body)
-      : req.body;
+    let data;
 
+    try {
+      data = req.body;
+    
+      if (typeof data === "string") {
+        data = JSON.parse(data);
+      }
+    } catch (e) {
+      return res.status(200).json({
+        success: false,
+        error: "Invalid JSON body"
+      });
+    }
+    console.log("BODY:", data);
+    
     // Shiprocket auth
     const authRes = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
       method: "POST",
@@ -19,17 +31,26 @@ export default async function handler(req, res) {
         password: process.env.SR_PASSWORD
       })
     });
-
-    const authData = await authRes.json();
-
+    
+    const authText = await authRes.text();
+    console.log("AUTH RAW:", authText);
+    
+    let authData;
+    try {
+      authData = JSON.parse(authText);
+    } catch {
+      return res.status(200).json({
+        success: false,
+        error: "Auth JSON parse failed"
+      });
+    }
+    
     if (!authData.token) {
       return res.status(200).json({
         success: false,
         error: authData
-  });
-}
-
-    const token = authData.token;
+      });
+    }
 
     // Create order
     const orderRes = await fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
