@@ -1,66 +1,47 @@
 export default async function handler(req, res) {
   try {
-    // Step 1: Get token
+    const data = req.body;
+
+    // 1. Authenticate with Shiprocket
     const authRes = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        email: process.env.ammapodimasala@gmail.com,
-        password: process.env.uy!MkIGF3pUnphe*q8v&@wQTwKil&mes
+        email: process.env.pratiknj2901@gmail.com,
+        password: process.env.Pratik@sr1
       })
     });
 
     const authData = await authRes.json();
     const token = authData.token;
 
-    // Step 2: Get order data from frontend
-    const order = req.body;
-
-    // Step 3: Create order in Shiprocket
+    // 2. Create Order in Shiprocket
     const orderRes = await fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
-        order_id: order.order_id,
-        order_date: new Date().toISOString().slice(0, 10),
-        pickup_location: "Primary",
-        billing_customer_name: order.name,
-        billing_last_name: "",
-        billing_address: order.address,
-        billing_city: order.city,
-        billing_pincode: order.pincode,
-        billing_state: order.state,
-        billing_country: "India",
-        billing_email: order.email,
-        billing_phone: order.phone,
-        shipping_is_billing: true,
-        order_items: [
-          {
-            name: order.product,
-            sku: "sku1",
-            units: 1,
-            selling_price: order.price
-          }
-        ],
-        payment_method: "Prepaid",
-        sub_total: order.price,
-        length: 10,
-        breadth: 10,
-        height: 10,
-        weight: 0.5
+        order_id: "ORDER_" + Date.now(),
+        order_date: new Date(),
+        billing_customer_name: data.name,
+        billing_address: data.address,
+        billing_city: data.city,
+        billing_pincode: data.pincode,
+        billing_phone: data.phone,
+        order_items: data.items,
+        payment_method: "Prepaid"
       })
     });
 
-    const result = await orderRes.json();
+    const orderData = await orderRes.json();
 
-    res.status(200).json(result);
+    return res.status(200).json({ success: true, orderData });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }
