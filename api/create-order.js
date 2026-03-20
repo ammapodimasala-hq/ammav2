@@ -1,26 +1,18 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ success: false });
+  if (req.method !== "POST") {
+    return res.status(200).json({ success: false, error: "Invalid method" });
   }
 
   try {
-    let data;
-
-    try {
-      data = req.body;
-    
-      if (typeof data === "string") {
-        data = JSON.parse(data);
-      }
-    } catch (e) {
-      return res.status(200).json({
-        success: false,
-        error: "Invalid JSON body"
-      });
+    // SAFE BODY PARSE
+    let data = req.body;
+    if (typeof data === "string") {
+      data = JSON.parse(data);
     }
+
     console.log("BODY:", data);
-    
-    // Shiprocket auth
+
+    // AUTH
     const authRes = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
       method: "POST",
       headers: {
@@ -31,20 +23,10 @@ export default async function handler(req, res) {
         password: process.env.SR_PASSWORD
       })
     });
-    
-    const authText = await authRes.text();
-    console.log("AUTH RAW:", authText);
-    
-    let authData;
-    try {
-      authData = JSON.parse(authText);
-    } catch {
-      return res.status(200).json({
-        success: false,
-        error: "Auth JSON parse failed"
-      });
-    }
-    
+
+    const authData = await authRes.json();
+    console.log("AUTH:", authData);
+
     if (!authData.token) {
       return res.status(200).json({
         success: false,
@@ -52,12 +34,14 @@ export default async function handler(req, res) {
       });
     }
 
-    // Create order
+    const token = authData.token;
+
+    // CREATE ORDER
     const orderRes = await fetch("https://apiv2.shiprocket.in/v1/external/orders/create/adhoc", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({
         order_id: "ORDER_" + Date.now(),
@@ -78,14 +62,19 @@ export default async function handler(req, res) {
     });
 
     const orderData = await orderRes.json();
-catch (err) {
-  console.error("SERVER ERROR:", err);
+    console.log("ORDER:", orderData);
+
     return res.status(200).json({
       success: orderData.status === 1,
       orderData
     });
 
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    console.error("CRASH:", err);
+
+    return res.status(200).json({
+      success: false,
+      error: err.message || "Server crash"
+    });
   }
 }
