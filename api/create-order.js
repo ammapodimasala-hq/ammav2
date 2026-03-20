@@ -21,8 +21,11 @@ export default async function handler(req, res) {
     const authData = await authRes.json();
 
     if (!authData.token) {
-      return res.status(500).json({ success: false, error: authData });
-    }
+      return res.status(200).json({
+        success: false,
+        error: authData
+  });
+}
 
     const token = authData.token;
 
@@ -52,7 +55,8 @@ export default async function handler(req, res) {
     });
 
     const orderData = await orderRes.json();
-
+catch (err) {
+  console.error("SERVER ERROR:", err);
     return res.status(200).json({
       success: orderData.status === 1,
       orderData
