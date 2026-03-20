@@ -1,23 +1,17 @@
-{
-  "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "*.html", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/admin", "dest": "/admin.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.shiprocket.in https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'self' https://checkout.shiprocket.in; connect-src 'self' https://apiv2.shiprocket.in https://checkout.shiprocket.in;"
-        }
-      ]
-    }
-  ]
-}
+"routes": [
+  {
+    "src": "/api/(.*)",
+    "dest": "/api/$1"
+  },
+  {
+    "src": "/admin",
+    "dest": "/admin.html"
+  },
+  {
+    "handle": "filesystem"
+  },
+  {
+    "src": "/(.*)",
+    "dest": "/index.html"
+  }
+]
