@@ -439,6 +439,7 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
     if (data.success) {
       alert("Order placed!");
     } else {
+      console.error("FULL ERROR:", data);
       alert("Order failed");
       console.error(data);
     }
