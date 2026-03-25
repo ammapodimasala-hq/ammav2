@@ -8,8 +8,8 @@ export default async function handler(req, res) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          email: "YOUR_EMAIL",
-          password: "YOUR_PASSWORD"
+          email: "pratiknj2901@gmail.com",
+          password: "Pratik@sr1"
         })
       }
     );
