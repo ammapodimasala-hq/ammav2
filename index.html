@@ -457,12 +457,11 @@ footer{background:var(--dk);color:rgba(255,255,255,.8);padding:56px 48px;}
 };
   
   async function payNow() {
-    console.log("PAY CLICKED");
     const res = await fetch('/api/create-order');
     const order = await res.json();
   
     const options = {
-      key: "rzp_live_SUlwH2DRApybjh",
+      key: "rzp_test_SVb8lg207s9Fqr",
       amount: order.amount,
       currency: order.currency,
       order_id: order.id,
