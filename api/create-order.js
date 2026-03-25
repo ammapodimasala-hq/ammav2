@@ -2,7 +2,7 @@ const Razorpay = require("razorpay");
 
 module.exports = async (req, res) => {
   const instance = new Razorpay({
-    key_id: "rzp_test_xxx", // paste directly
+    key_id: "rzp_test_xxx", // paste directly //
     key_secret: "xxxxxx"
   });
 
