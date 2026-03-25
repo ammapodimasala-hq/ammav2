@@ -1,23 +1,24 @@
-import Razorpay from "razorpay";
+const Razorpay = require("razorpay");
 
-export default async function handler(req, res) {
-  const instance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
-
+module.exports = async (req, res) => {
   try {
-    const options = {
-      amount: 50000, // ₹500 in paise
+    console.log("KEY_ID:", process.env.RAZORPAY_KEY_ID);
+
+    const instance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const order = await instance.orders.create({
+      amount: 50000,
       currency: "INR",
       receipt: "receipt_order_1",
-    };
+    });
 
-    const order = await instance.orders.create(options);
+    return res.status(200).json(order);
 
-    res.status(200).json(order);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("ERROR:", err);
+    return res.status(500).json({ error: err.message });
   }
-  console.log("KEY_ID:", process.env.RAZORPAY_KEY_ID);
-}
+};
