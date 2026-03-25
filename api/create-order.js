@@ -19,4 +19,5 @@ export default async function handler(req, res) {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+  console.log("KEY_ID:", process.env.RAZORPAY_KEY_ID);
 }
