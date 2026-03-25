@@ -1,43 +1,30 @@
-import axios from "axios";
-
 export default async function handler(req, res) {
-  // Allow only POST
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
   try {
     const { amount, products } = req.body;
 
-    console.log("Incoming:", req.body);
-
-    const response = await axios.post(
+    const response = await fetch(
       "https://apiv2.shiprocket.in/v1/external/checkout/create",
       {
-        amount: amount,
-        currency: "INR",
-        products: products,
-      },
-      {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.SHIPROCKET_API_KEY}:${process.env.SHIPROCKET_API_SECRET}`,
         },
+        body: JSON.stringify({
+          amount,
+          currency: "INR",
+          products,
+        }),
       }
     );
 
-    console.log("Shiprocket:", response.data);
+    const data = await response.json();
 
-    return res.status(200).json({
-      checkout_url: response.data.checkout_url,
-    });
+    return res.status(200).json(data);
 
   } catch (error) {
-    console.error("ERROR:", error.response?.data || error.message);
-
     return res.status(500).json({
-      error: "Failed to create checkout",
-      details: error.response?.data || error.message,
+      error: error.message,
     });
   }
 }
